@@ -3,8 +3,6 @@
 -- Tối ưu cho: PostgreSQL 14+ với TimescaleDB
 -- ==============================================================================
 
--- Bật extension cho chuỗi thời gian
-CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
 -- 1. Bảng Doanh nghiệp / Hợp tác xã (Đơn vị bao tiêu sản phẩm)
 CREATE TABLE cooperatives (
@@ -69,8 +67,7 @@ CREATE TABLE sensor_logs (
     ec_level DECIMAL(5,2),
     ph_level DECIMAL(3,1)
 );
--- Kích hoạt TimescaleDB Hypertable để tối ưu truy vấn chuỗi thời gian lớn
-SELECT create_hypertable('sensor_logs', 'recorded_at', if_not_exists => TRUE);
+
 
 -- 5. Bảng Thị Trường Tự Do (MMO Economy)
 CREATE TABLE marketplace (
