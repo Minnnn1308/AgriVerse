@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AgriVerse | Trợ Lý Nông Nghiệp Thông Minh</title>
+    <meta name="description" content="AgriVerse - Ứng dụng quản lý nông nghiệp thông minh dành cho nông dân Việt Nam. Theo dõi ruộng vườn, thời tiết, mùa vụ dễ dàng.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ==================== MÀN HÌNH LOADING ==================== -->
+        <section id="loading-screen" class="screen active">
+            <div class="loader-content">
+                <div class="logo-pulse">🌾</div>
+                <h2 class="app-name">AgriVerse</h2>
+                <p class="version-tag">Phiên bản v0.0.6.0</p>
+                <p id="loading-text" class="loading-msg">Đang khởi động...</p>
+                <div class="loading-bar-wrap">
+                    <div class="loading-bar" id="loading-bar"></div>
+                </div>
+                <div class="loading-pct"><span id="loading-pct">0</span>%</div>
+            </div>
+        </section>
+
+        <!-- ==================== MÀN HÌNH CHỌN CHẾ ĐỘ ==================== -->
+        <section id="start-menu-screen" class="screen">
+            <div class="start-content">
+                <div class="start-logo">
+                    <span class="start-icon">🌾</span>
+                    <h1>Agri<span>Verse</span></h1>
+                    <p class="start-subtitle">Trợ Lý Nông Nghiệp Thông Minh</p>
+                </div>
+                <div class="mode-cards">
+                    <button class="mode-card pro-card" onclick="enterMode('pro')">
+                        <div class="mode-icon">🧑‍🌾</div>
+                        <div class="mode-info">
+                            <h3>Chế Độ Nông Dân</h3>
+                            <p>Quản lý ruộng vườn thực tế</p>
+                        </div>
+                        <span class="mode-arrow">→</span>
+                    </button>
+                    <button class="mode-card game-card" onclick="enterMode('game')">
+                        <div class="mode-icon">🎮</div>
+                        <div class="mode-info">
+                            <h3>Nông Trại Vui Vẻ</h3>
+                            <p>Học nông nghiệp qua trò chơi</p>
+                        </div>
+                        <span class="mode-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MÀN HÌNH HƯỚNG DẪN (ONBOARDING) ==================== -->
+        <section id="onboarding-screen" class="screen">
+            <div class="onboarding-slides" id="onboarding-slides">
+                <div class="onboarding-slide active" data-step="1">
+                    <div class="slide-icon">👋</div>
+                    <h2>Chào bác nông dân!</h2>
+                    <p>AgriVerse giúp bác quản lý ruộng vườn dễ dàng hơn bao giờ hết. Chỉ cần chạm vào màn hình là xong!</p>
+                </div>
+                <div class="onboarding-slide" data-step="2">
+                    <div class="slide-icon">🗺️</div>
+                    <h2>Bản Đồ Ruộng</h2>
+                    <p>Chạm vào ô đất trên bản đồ để xem tình trạng cây trồng. Màu xanh = khỏe, màu vàng = cần chăm sóc.</p>
+                </div>
+                <div class="onboarding-slide" data-step="3">
+                    <div class="slide-icon">📝</div>
+                    <h2>Nhật Ký Nông Vụ</h2>
+                    <p>Ghi lại công việc hàng ngày: tưới nước, bón phân, phun thuốc. Hệ thống tự nhắc nhở bác!</p>
+                </div>
+                <div class="onboarding-slide" data-step="4">
+                    <div class="slide-icon">🌤️</div>
+                    <h2>Thời Tiết KTTV & GPS</h2>
+                    <p>AgriVerse lấy vị trí GPS chính xác và dự báo thời tiết theo chuẩn Trung tâm KTTV Quốc gia — cập nhật mỗi 10 phút cho đúng địa phương của bác!</p>
+                </div>
+            </div>
+            <div class="onboarding-controls">
+                <div class="onboarding-dots">
+                    <span class="dot active" data-step="1"></span>
+                    <span class="dot" data-step="2"></span>
+                    <span class="dot" data-step="3"></span>
+                    <span class="dot" data-step="4"></span>
+                </div>
+                <button class="btn-primary btn-lg" id="onboarding-next-btn" onclick="nextOnboardingSlide()">
+                    Tiếp theo →
+                </button>
+                <button class="btn-text" onclick="skipOnboarding()">Bỏ qua</button>
+            </div>
+        </section>
+
+        <!-- ==================== MÀN HÌNH CHÍNH - PRO MODE ==================== -->
+        <section id="main-app-screen" class="screen">
+            <!-- Top Header Bar -->
+            <header class="app-header">
+                <div class="header-left">
+                    <span class="header-logo">🌾</span>
+                    <div>
+                        <h1 class="header-title">AgriVerse</h1>
+                        <span class="header-version">v0.0.6.0</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" onclick="goToStartMenu()" title="Đổi chế độ">
+                        <span>🔄</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ===== PRO MODE CONTAINER ===== -->
+            <div id="pro-mode-container" class="mode-container">
+                <!-- TAB: TỔNG QUAN -->
+                <div id="pro-tab-overview" class="tab-page active">
+                    <div class="page-header">
+                        <h2>🏠 Tổng Quan Nông Trại</h2>
+                        <p class="page-desc">Tình hình ruộng vườn hôm nay</p>
+                    </div>
+
+                    <!-- Weather Card -->
+                    <div class="card weather-card" id="weather-card">
+                        <div class="weather-location-bar">
+                            <button class="location-btn" id="location-btn" onclick="requestGeolocation()" title="Cập nhật vị trí GPS">
+                                <span id="location-icon">📍</span>
+                                <span id="location-name">Đang xác định vị trí...</span>
+                            </button>
+                            <span class="weather-source" id="weather-source">KTTV/NCHMF</span>
+                        </div>
+                        <div class="weather-main">
+                            <div class="weather-icon-big" id="weather-icon">🌤️</div>
+                            <div class="weather-temp" id="weather-temp">--°C</div>
+                        </div>
+                        <div class="weather-desc" id="weather-desc">Đang tải dự báo thời tiết...</div>
+                        <div class="weather-details">
+                            <div class="weather-item">
+                                <span class="wi-icon">💧</span>
+                                <span class="wi-label">Độ ẩm</span>
+                                <span class="wi-value" id="wi-humidity">--%</span>
+                            </div>
+                            <div class="weather-item">
+                                <span class="wi-icon">💨</span>
+                                <span class="wi-label">Gió</span>
+                                <span class="wi-value" id="wi-wind">-- km/h</span>
+                            </div>
+                            <div class="weather-item">
+                                <span class="wi-icon">🌧️</span>
+                                <span class="wi-label">Mưa</span>
+                                <span class="wi-value" id="wi-rain">--%</span>
+                            </div>
+                            <div class="weather-item">
+                                <span class="wi-icon">☀️</span>
+                                <span class="wi-label">UV</span>
+                                <span class="wi-value" id="wi-uv">--</span>
+                            </div>
+                        </div>
+                        <div class="weather-tip">
+                            <span class="tip-icon">💡</span>
+                            <span id="weather-tip">Nhấn 📍 để lấy vị trí GPS và dự báo thời tiết địa phương theo chuẩn KTTV.</span>
+                        </div>
+                        <div class="weather-updated" id="weather-updated"></div>
+                        <button class="weather-manual-link" onclick="openLocationModal()">Chọn tỉnh/thành thủ công</button>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="stats-row">
+                        <div class="stat-mini card">
+                            <div class="stat-emoji">💧</div>
+                            <div class="stat-value">68%</div>
+                            <div class="stat-label">Độ ẩm TB</div>
+                        </div>
+                        <div class="stat-mini card">
+                            <div class="stat-emoji">🌡️</div>
+                            <div class="stat-value">24°C</div>
+                            <div class="stat-label">Nhiệt đất</div>
+                        </div>
+                        <div class="stat-mini card">
+                            <div class="stat-emoji">🍀</div>
+                            <div class="stat-value">85%</div>
+                            <div class="stat-label">NPK</div>
+                        </div>
+                    </div>
+
+                    <!-- Farm Status Summary -->
+                    <div class="card">
+                        <h3 class="card-title">📊 Tình Trạng Ruộng</h3>
+                        <div class="farm-summary" id="farm-summary">
+                            <div class="summary-item healthy">
+                                <span class="sum-emoji">🌳</span>
+                                <span class="sum-count" id="sum-healthy">0</span>
+                                <span class="sum-label">Khỏe</span>
+                            </div>
+                            <div class="summary-item warning">
+                                <span class="sum-emoji">🍂</span>
+                                <span class="sum-count" id="sum-warning">0</span>
+                                <span class="sum-label">Cần tưới</span>
+                            </div>
+                            <div class="summary-item danger">
+                                <span class="sum-emoji">🐛</span>
+                                <span class="sum-count" id="sum-danger">0</span>
+                                <span class="sum-label">Sâu bệnh</span>
+                            </div>
+                            <div class="summary-item harvest">
+                                <span class="sum-emoji">✨</span>
+                                <span class="sum-count" id="sum-harvest">0</span>
+                                <span class="sum-label">Thu hoạch</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <h3 class="card-title">⚡ Việc Cần Làm Hôm Nay</h3>
+                        <div class="todo-list" id="pro-todo-list">
+                            <div class="todo-empty">
+                                <span>📋</span>
+                                <p>Chưa có dữ liệu. Hãy vào <strong>Bản Đồ Ruộng</strong> và nhập số liệu thực tế!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7-Day Forecast -->
+                    <div class="card">
+                        <h3 class="card-title">📅 Dự Báo 7 Ngày Tới <span class="forecast-badge" id="forecast-badge">KTTV</span></h3>
+                        <div class="forecast-scroll" id="forecast-scroll">
+                            <div class="forecast-loading">Đang tải dự báo... ⏳</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: BẢN ĐỒ RUỘNG -->
+                <div id="pro-tab-field" class="tab-page">
+                    <div class="page-header">
+                        <h2>🗺️ Bản Đồ Ruộng</h2>
+                        <p class="page-desc">Chạm vào ô đất để xem chi tiết</p>
+                    </div>
+
+                    <!-- Field Legend -->
+                    <div class="field-legend">
+                        <span class="legend-tag healthy">🌳 Khỏe</span>
+                        <span class="legend-tag thirsty">🍂 Khô</span>
+                        <span class="legend-tag waterlogged">💧 Úng</span>
+                        <span class="legend-tag acidic">🧪 Chua</span>
+                        <span class="legend-tag pest">🐛 Sâu</span>
+                        <span class="legend-tag ready">✨ Hái</span>
+                    </div>
+
+                    <!-- Farm Area Config -->
+                    <div class="card compact">
+                        <div class="inline-form">
+                            <label>Diện tích:</label>
+                            <input type="number" id="pro-area-input" step="0.1" min="0.1" value="2.5" class="input-sm">
+                            <span>ha</span>
+                            <button class="btn-sm btn-primary" onclick="updateFarmArea('pro')">Lưu</button>
+                        </div>
+                        <p class="help-text">Mỗi ô = <span id="pro-block-size-text">0.05</span> ha (<span id="pro-block-size-m2-text">500</span> m²)</p>
+                    </div>
+
+                    <!-- Field Grid -->
+                    <div class="field-grid-wrap">
+                        <div id="pro-3d-container" class="field-grid-container"></div>
+                    </div>
+
+                    <!-- Block Detail Panel (shown when selecting a block) -->
+                    <div class="card block-detail-panel" id="pro-block-detail-panel" style="display:none;">
+                        <div class="detail-header">
+                            <h3 id="pro-detail-block-id">Ô Đất: --</h3>
+                            <span id="pro-evaluated-status" class="status-tag healthy">🌳 Khỏe mạnh</span>
+                        </div>
+
+                        <!-- Sliders for sensor data -->
+                        <div class="sensor-sliders">
+                            <div class="slider-row">
+                                <span class="slider-icon">💧</span>
+                                <label>Độ ẩm đất</label>
+                                <input type="range" id="input-moisture" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-moisture">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🌡️</span>
+                                <label>Nhiệt độ</label>
+                                <input type="range" id="input-temp" min="-10" max="60" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-temp">--°C</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🍀</span>
+                                <label>Đạm (N)</label>
+                                <input type="range" id="input-n" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-n">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🪵</span>
+                                <label>Lân (P)</label>
+                                <input type="range" id="input-p" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-p">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🍇</span>
+                                <label>Kali (K)</label>
+                                <input type="range" id="input-k" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-k">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🧪</span>
+                                <label>Độ pH</label>
+                                <input type="range" id="input-ph" min="0" max="14" step="0.1" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-ph">--</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">☁️</span>
+                                <label>Ẩm không khí</label>
+                                <input type="range" id="input-humidity" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-humidity">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">🐛</span>
+                                <label>Sâu hại</label>
+                                <input type="range" id="input-pest" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-pest">--%</strong>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-icon">☀️</span>
+                                <label>Ánh sáng</label>
+                                <input type="range" id="input-light" min="0" max="100" class="slider" oninput="onCauseVariableChange()">
+                                <strong id="val-light">--%</strong>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary btn-lg btn-block" onclick="saveBlockUserData()">
+                            💾 Lưu Số Liệu Thực Tế
+                        </button>
+
+                        <div class="action-btns" id="pro-action-buttons-container" style="display:none;">
+                            <button class="btn-action water" onclick="executeBlockAction('pro', 'water')">💦 Tưới</button>
+                            <button class="btn-action fertilize" onclick="executeBlockAction('pro', 'fertilize')">🍎 Bón</button>
+                            <button class="btn-action pest" onclick="executeBlockAction('pro', 'treat_pest')">🐛 Trị sâu</button>
+                        </div>
+                    </div>
+
+                    <!-- Unit Converter -->
+                    <div class="card">
+                        <h3 class="card-title">📐 Đổi Đơn Vị Đất</h3>
+                        <div class="converter-row">
+                            <div class="conv-input-group">
+                                <label>Hectare:</label>
+                                <input type="number" id="pro-conv-ha" step="0.01" min="0" placeholder="ha" oninput="convertUnit('pro', 'ha', this.value)" class="input-sm">
+                            </div>
+                            <span class="conv-arrow">⇄</span>
+                            <div class="conv-input-group">
+                                <label>Mét vuông:</label>
+                                <input type="number" id="pro-conv-m2" step="1" min="0" placeholder="m²" oninput="convertUnit('pro', 'm2', this.value)" class="input-sm">
+                            </div>
+                        </div>
+                        <div class="quick-chips">
+                            <button class="chip" onclick="applyRegionalUnit('pro', 360)">Sào Bắc (360m²)</button>
+                            <button class="chip" onclick="applyRegionalUnit('pro', 500)">Sào Trung (500m²)</button>
+                            <button class="chip" onclick="applyRegionalUnit('pro', 1000)">Công Nam (1000m²)</button>
+                            <button class="chip" onclick="applyRegionalUnit('pro', 10000)">1 Mẫu (10.000m²)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: NHẬT KÝ NÔNG VỤ -->
+                <div id="pro-tab-diary" class="tab-page">
+                    <div class="page-header">
+                        <h2>📝 Nhật Ký Nông Vụ</h2>
+                        <p class="page-desc">Ghi lại công việc hàng ngày</p>
+                    </div>
+
+                    <!-- Quick Log Buttons -->
+                    <div class="card">
+                        <h3 class="card-title">⚡ Ghi Nhanh Hôm Nay</h3>
+                        <div class="quick-log-grid">
+                            <button class="quick-log-btn" onclick="quickLog('water')">
+                                <span>💦</span>
+                                <label>Tưới nước</label>
+                            </button>
+                            <button class="quick-log-btn" onclick="quickLog('fertilize')">
+                                <span>🌿</span>
+                                <label>Bón phân</label>
+                            </button>
+                            <button class="quick-log-btn" onclick="quickLog('spray')">
+                                <span>💨</span>
+                                <label>Phun thuốc</label>
+                            </button>
+                            <button class="quick-log-btn" onclick="quickLog('weed')">
+                                <span>🌾</span>
+                                <label>Làm cỏ</label>
+                            </button>
+                            <button class="quick-log-btn" onclick="quickLog('harvest')">
+                                <span>🧺</span>
+                                <label>Thu hoạch</label>
+                            </button>
+                            <button class="quick-log-btn" onclick="quickLog('other')">
+                                <span>📋</span>
+                                <label>Việc khác</label>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Diary Entries -->
+                    <div class="card">
+                        <h3 class="card-title">📖 Lịch Sử Công Việc</h3>
+                        <div class="diary-list" id="diary-list">
+                            <div class="diary-empty">
+                                <span>📝</span>
+                                <p>Chưa có ghi chép nào. Bấm các nút phía trên để ghi công việc!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: THƯ VIỆN / CẨM NANG -->
+                <div id="pro-tab-library" class="tab-page">
+                    <div class="page-header">
+                        <h2>📚 Cẩm Nang Nông Nghiệp</h2>
+                        <p class="page-desc">Tra cứu đất, cây trồng, phân bón</p>
+                    </div>
+
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchLibraryTab('soil', this)">🟫 Đất</button>
+                        <button class="sub-tab" onclick="switchLibraryTab('crops', this)">🌿 Cây trồng</button>
+                        <button class="sub-tab" onclick="switchLibraryTab('fertilizers', this)">🧪 Phân bón</button>
+                    </div>
+
+                    <div class="library-content">
+                        <div id="lib-soil" class="lib-tab active"></div>
+                        <div id="lib-crops" class="lib-tab"></div>
+                        <div id="lib-fertilizers" class="lib-tab"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: THÍ NGHIỆM -->
+                <div id="pro-tab-lab" class="tab-page">
+                    <div class="page-header">
+                        <h2>🧪 Phòng Thí Nghiệm</h2>
+                        <p class="page-desc">Mô phỏng canh tác 6 tháng</p>
+                    </div>
+
+                    <!-- Lab Setup -->
+                    <div class="card">
+                        <h3 class="card-title">⚙️ Cấu Hình Thí Nghiệm</h3>
+                        <div class="lab-form">
+                            <div class="form-group">
+                                <label>🎯 Mục tiêu:</label>
+                                <select id="pro-sb-goal" class="select-field">
+                                    <option value="profit">💰 Tối đa lợi nhuận</option>
+                                    <option value="organic">🌿 Canh tác hữu cơ</option>
+                                    <option value="resilience">🛡️ Chống thiên tai</option>
+                                    <option value="conservation">💧 Tiết kiệm nước</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>🟫 Loại đất:</label>
+                                <select id="pro-sb-soil" class="select-field">
+                                    <option value="bazan">Đất đỏ Bazan (Tây Nguyên)</option>
+                                    <option value="catpha">Đất cát pha (Miền Trung)</option>
+                                    <option value="set">Đất sét (Mật độ mịn cao)</option>
+                                    <option value="phusa">Đất phù sa (Đồng bằng)</option>
+                                    <option value="phen">Đất phèn chua (ĐBSCL)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>🌱 Giống cây:</label>
+                                <select id="pro-sb-crop" class="select-field">
+                                    <option value="robusta">☕ Cà phê Robusta</option>
+                                    <option value="arabica">🌸 Cà phê Arabica</option>
+                                    <option value="tieuvinhlinh">🌶️ Hồ tiêu Vĩnh Linh</option>
+                                    <option value="macca">🌰 Mắc ca Tây Nguyên</option>
+                                    <option value="saurieng">👑 Sầu riêng Ri6</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>🌿 Phân bón:</label>
+                                <select id="pro-sb-fertilizer" class="select-field">
+                                    <option value="huuco">🍂 Hữu cơ sinh học</option>
+                                    <option value="npk">🧪 NPK 16-16-8</option>
+                                    <option value="viluong">💊 Vi lượng TE</option>
+                                    <option value="chuong">💩 Phân chuồng hoai</option>
+                                    <option value="voibot">⚪ Vôi bột</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>📦 Sản phẩm:</label>
+                                <select id="pro-sb-product" class="select-field">
+                                    <option value="nhantho">📦 Bán tươi thô</option>
+                                    <option value="botnguyenchat">☕ Bột đóng gói</option>
+                                    <option value="tieuso">🌶️ Tiêu sọ khô</option>
+                                    <option value="maccasay">🌰 Mắc ca sấy</option>
+                                    <option value="sauriengsay">❄️ Sầu riêng sấy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>🔧 Thiết bị:</label>
+                                <select id="pro-sb-equipment" class="select-field">
+                                    <option value="none">❌ Thủ công (Không thiết bị)</option>
+                                    <option value="sensor">📡 Cảm biến IoT</option>
+                                    <option value="drip">💧 Tưới nhỏ giọt</option>
+                                    <option value="shade">🕸️ Lưới che nắng</option>
+                                    <option value="tractor">🚜 Máy cày mini</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lab Grid & Results -->
+                    <div class="card">
+                        <div class="lab-status-bar">
+                            <span>Tháng <strong id="pro-sb-month">0</strong>/6</span>
+                            <span id="pro-sb-phase">Chuẩn bị đất</span>
+                        </div>
+                        <div class="lab-grid-wrap">
+                            <div class="sandbox-grid" id="pro-sandbox-grid"></div>
+                        </div>
+                        <div class="lab-btns">
+                            <button class="btn-primary" onclick="startSandboxSim('pro')">🚀 Bắt đầu</button>
+                            <button class="btn-secondary" onclick="advanceSandboxMonth('pro')" id="pro-sb-next-btn" disabled>📅 +1 Tháng</button>
+                            <button class="btn-outline" onclick="resetSandbox('pro')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+
+                    <!-- Lab Results -->
+                    <div class="card">
+                        <h3 class="card-title">📊 Kết Quả Thí Nghiệm</h3>
+                        <div class="lab-results">
+                            <div class="result-item">
+                                <span class="ri-label">Đạt mục tiêu</span>
+                                <div class="progress-bar-wrap">
+                                    <div class="progress-bar" id="pro-sb-score-bar" style="width:0%"></div>
+                                </div>
+                                <span class="ri-value"><strong id="pro-sb-score">0</strong>%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="ri-label">Lợi nhuận</span>
+                                <span class="ri-value profit" id="pro-sb-profit">0 VNĐ/ha</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="ri-label">Sức khỏe đất</span>
+                                <span class="ri-value" id="pro-sb-soil-health">Chưa đo</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="ri-label">Sâu hại</span>
+                                <span class="ri-value" id="pro-sb-pest-risk">0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="ri-label">Tiết kiệm nước</span>
+                                <span class="ri-value" id="pro-sb-resource">100%</span>
+                            </div>
+                        </div>
+                        <div class="advice-box" id="pro-advice-box">
+                            <h4>💡 Lời Khuyên:</h4>
+                            <p id="pro-sb-advice">Chọn cấu hình và bấm "Bắt đầu" để nhận phân tích.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: THÊM (Log, Quản lý, Cài đặt) -->
+                <div id="pro-tab-more" class="tab-page">
+                    <div class="page-header">
+                        <h2>⚙️ Quản Lý & Cài Đặt</h2>
+                        <p class="page-desc">Tưới tiêu, quản lý thiết bị, log hệ thống</p>
+                    </div>
+
+                    <!-- Irrigation Management -->
+                    <div class="card">
+                        <h3 class="card-title">💧 Quản Lý Tưới Tiêu</h3>
+                        <div class="irrigation-cards">
+                            <div class="irr-card active-zone">
+                                <div class="irr-header">
+                                    <span class="irr-led on"></span>
+                                    <strong>Khu vực A</strong>
+                                    <span class="irr-status">Đang tưới</span>
+                                </div>
+                                <p>Béc nhỏ giọt • 20L/phút</p>
+                                <p>Còn lại: 15 phút</p>
+                                <button class="btn-sm btn-danger" onclick="alert('Đã ngắt bơm khu A')">Ngắt bơm</button>
+                            </div>
+                            <div class="irr-card">
+                                <div class="irr-header">
+                                    <span class="irr-led"></span>
+                                    <strong>Khu vực B</strong>
+                                    <span class="irr-status">Chờ lịch</span>
+                                </div>
+                                <p>Lịch tiếp: 16:30 chiều nay</p>
+                                <p>Độ ẩm: 72%</p>
+                                <button class="btn-sm btn-primary" onclick="alert('Đã bật bơm khu B')">Bật bơm</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Log -->
+                    <div class="card">
+                        <h3 class="card-title">📋 Log Hệ Thống</h3>
+                        <div class="system-log" id="pro-notifications">
+                            <div class="log-entry">
+                                <span class="log-time">[--:--]</span>
+                                <span>Đang chờ kết nối...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== GAME MODE CONTAINER ===== -->
+            <div id="game-mode-container" class="mode-container">
+                <!-- GAME TAB: Nhân vật -->
+                <div id="game-tab-profile" class="tab-page active">
+                    <div class="page-header game-header">
+                        <h2>🧒 Nông Trại Vui Vẻ</h2>
+                        <p class="page-desc">Hành trình trở thành nông dân nhí xuất sắc!</p>
+                    </div>
+
+                    <!-- Kid Profile Card -->
+                    <div class="card game-card profile-card">
+                        <div class="avatar-area">
+                            <div class="avatar-ring" onclick="openAvatarPicker()" title="Chạm để đổi avatar">
+                                <img src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Carot" alt="Avatar" class="avatar" id="kid-avatar">
+                                <span class="avatar-edit-badge">📷</span>
+                            </div>
+                            <h2 class="kid-name">
+                                <span id="kid-name">Bé Cà Rốt</span>
+                                <button class="rename-btn" onclick="promptRenameKid()" title="Đổi tên">✏️</button>
+                            </h2>
+                        </div>
+                        <div class="level-row">
+                            <span class="level-badge">LV. <span id="kid-level">1</span></span>
+                            <div class="xp-bar-wrap">
+                                <div class="xp-bar" id="exp-bar" style="width:0%"></div>
+                            </div>
+                            <span class="xp-text"><span id="kid-points">0</span>/100 EXP</span>
+                        </div>
+                        <div class="coins-display">
+                            💰 <span id="kid-coins">200</span> Xu Vàng
+                        </div>
+                    </div>
+
+                    <!-- Daily Quests -->
+                    <div class="card game-card">
+                        <h3 class="card-title">🌟 Nhiệm Vụ Hàng Ngày</h3>
+                        <div class="quests-list" id="quests-list">
+                            <div class="quest-loading">Đang tải nhiệm vụ... ⏳</div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory -->
+                    <div class="card game-card">
+                        <h3 class="card-title">🎒 Túi Đồ</h3>
+                        <div class="inv-tabs">
+                            <button class="inv-tab active" id="inv-tab-all" onclick="switchInventoryTab('all', this)">📦 Tất cả</button>
+                            <button class="inv-tab" id="inv-tab-crops" onclick="switchInventoryTab('crops', this)">🌱 Hạt giống</button>
+                            <button class="inv-tab" id="inv-tab-fertilizers" onclick="switchInventoryTab('fertilizers', this)">🧪 Phân</button>
+                            <button class="inv-tab" id="inv-tab-others" onclick="switchInventoryTab('others', this)">🎟️ Khác</button>
+                        </div>
+                        <div class="inventory-grid" id="inventory-items-container"></div>
+                    </div>
+                </div>
+
+                <!-- GAME TAB: Khu Vườn -->
+                <div id="game-tab-garden" class="tab-page">
+                    <div class="page-header game-header">
+                        <h2>🌳 Khu Vườn Của Bé</h2>
+                        <p class="page-desc">Chạm vào ô đất để chăm sóc cây!</p>
+                    </div>
+
+                    <div class="field-legend game-legend">
+                        <span>🌳 Khỏe</span>
+                        <span>🍂 Khô</span>
+                        <span>💧 Úng</span>
+                        <span>🐛 Sâu</span>
+                        <span>✨ Hái</span>
+                    </div>
+
+                    <div class="field-grid-wrap game-grid-wrap">
+                        <div id="game-3d-container" class="game-field-grid-container"></div>
+                    </div>
+
+                    <!-- Game Block Details -->
+                    <div class="card game-card" id="game-block-detail-panel" style="display:none;">
+                        <div class="game-detail-header">
+                            <div class="plant-avatar-ring">
+                                <span id="game-detail-plant-avatar">🌳</span>
+                            </div>
+                            <div>
+                                <h3 id="game-detail-block-id">Ô đất: --</h3>
+                                <p id="game-detail-status" class="game-status-text">Đang xanh tốt!</p>
+                            </div>
+                        </div>
+                        <div class="game-stats">
+                            <div class="game-stat">💧 Nước: <strong id="game-detail-moisture">--%</strong></div>
+                            <div class="game-stat">🌡️ Nhiệt: <strong id="game-detail-temp">--°C</strong></div>
+                            <div class="game-stat">🍎 Dinh dưỡng: <strong id="game-detail-fert">--%</strong></div>
+                        </div>
+                        <div class="game-action-btns">
+                            <button class="game-btn water" onclick="executeBlockAction('game', 'water')">💦 Tưới Nước</button>
+                            <button class="game-btn fert" onclick="executeBlockAction('game', 'fertilize')">🍎 Bón Phân</button>
+                            <button class="game-btn pest-btn" onclick="executeBlockAction('game', 'treat_pest')">🐛 Trị Sâu</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GAME TAB: Cẩm Nang -->
+                <div id="game-tab-book" class="tab-page">
+                    <div class="page-header game-header">
+                        <h2>📖 Cẩm Nang Nông Trại</h2>
+                        <p class="page-desc">Học hỏi kiến thức nông nghiệp vui vẻ!</p>
+                    </div>
+                    <div class="sub-tabs game-sub-tabs">
+                        <button class="sub-tab active" onclick="switchGameLibTab('soil', this)">🟫 Đất</button>
+                        <button class="sub-tab" onclick="switchGameLibTab('crops', this)">🌿 Cây</button>
+                        <button class="sub-tab" onclick="switchGameLibTab('fertilizers', this)">🧪 Phân</button>
+                    </div>
+                    <div class="library-content game-lib-content">
+                        <div id="game-lib-soil" class="lib-tab active"></div>
+                        <div id="game-lib-crops" class="lib-tab"></div>
+                        <div id="game-lib-fertilizers" class="lib-tab"></div>
+                    </div>
+                </div>
+
+                <!-- GAME TAB: Thí Nghiệm -->
+                <div id="game-tab-lab" class="tab-page">
+                    <div class="page-header game-header">
+                        <h2>🧪 Phòng Thí Nghiệm Bé</h2>
+                        <p class="page-desc">Thử trồng cây mô phỏng!</p>
+                    </div>
+
+                    <div class="card game-card">
+                        <h3 class="card-title">🌱 Chọn Giống Trồng</h3>
+                        <div class="lab-form">
+                            <div class="form-group"><label>Mục tiêu:</label><select id="game-sb-goal" class="select-field game-select"><option value="profit">💰 Kiếm nhiều xu</option><option value="organic">🌿 Vườn xanh sạch</option><option value="resilience">🛡️ Cây siêu khỏe</option><option value="conservation">💧 Tiết kiệm nước</option></select></div>
+                            <div class="form-group"><label>Đất:</label><select id="game-sb-soil" class="select-field game-select"><option value="bazan">🟫 Đất đỏ Bazan</option><option value="catpha">⏳ Đất cát pha</option><option value="set">🧱 Đất sét</option><option value="phusa">🌾 Đất phù sa</option><option value="phen">🧪 Đất phèn chua</option></select></div>
+                            <div class="form-group"><label>Cây:</label><select id="game-sb-crop" class="select-field game-select"><option value="robusta">☕ Cà phê Robusta</option><option value="arabica">🌸 Cà phê Arabica</option><option value="tieuvinhlinh">🌶️ Hồ tiêu</option><option value="macca">🌰 Mắc ca</option><option value="saurieng">👑 Sầu riêng Ri6</option></select></div>
+                            <div class="form-group"><label>Phân:</label><select id="game-sb-fertilizer" class="select-field game-select"><option value="huuco">🍂 Hữu cơ</option><option value="npk">🧪 NPK</option><option value="viluong">💊 Vi lượng</option><option value="chuong">💩 Phân chuồng</option><option value="voibot">⚪ Vôi bột</option></select></div>
+                            <div class="form-group"><label>Sản phẩm:</label><select id="game-sb-product" class="select-field game-select"><option value="nhantho">📦 Bán tươi</option><option value="botnguyenchat">☕ Bột đóng gói</option><option value="tieuso">🌶️ Tiêu sọ khô</option><option value="maccasay">🌰 Mắc ca sấy</option><option value="sauriengsay">❄️ Sầu riêng sấy</option></select></div>
+                            <div class="form-group"><label>Thiết bị:</label><select id="game-sb-equipment" class="select-field game-select"><option value="none">❌ Thủ công</option><option value="sensor">📡 Cảm biến IoT</option><option value="drip">💧 Tưới nhỏ giọt</option><option value="shade">🕸️ Lưới che nắng</option><option value="tractor">🚜 Máy cày mini</option></select></div>
+                        </div>
+                    </div>
+
+                    <div class="card game-card">
+                        <div class="lab-status-bar game-status-bar">
+                            <span>Tháng <strong id="game-sb-month">0</strong>/6</span>
+                            <span id="game-sb-phase">Chuẩn bị gieo hạt</span>
+                        </div>
+                        <div class="lab-grid-wrap game-lab-grid">
+                            <div class="sandbox-grid" id="game-sandbox-grid"></div>
+                        </div>
+                        <div class="lab-btns">
+                            <button class="game-btn water" onclick="startSandboxSim('game')">🚀 TRỒNG!</button>
+                            <button class="game-btn fert" onclick="advanceSandboxMonth('game')" id="game-sb-next-btn" disabled>📅 +1 Tháng</button>
+                            <button class="game-btn pest-btn" onclick="resetSandbox('game')">🔄 Chơi lại</button>
+                        </div>
+                    </div>
+
+                    <div class="card game-card">
+                        <h3 class="card-title">🏆 Điểm Số</h3>
+                        <div class="lab-results game-results">
+                            <div class="result-item"><span class="ri-label">Yêu thích</span><div class="progress-bar-wrap game-pb"><div class="progress-bar game-bar" id="game-sb-score-bar" style="width:0%"></div></div><span class="ri-value"><strong id="game-sb-score">0</strong>%</span></div>
+                            <div class="result-item"><span class="ri-label">Xu vàng</span><span class="ri-value" id="game-sb-profit">0 xu</span></div>
+                            <div class="result-item"><span class="ri-label">Đất</span><span class="ri-value" id="game-sb-soil-health">Đất trống</span></div>
+                            <div class="result-item"><span class="ri-label">Sâu</span><span class="ri-value" id="game-sb-pest-risk">Chưa có</span></div>
+                            <div class="result-item"><span class="ri-label">Nước</span><span class="ri-value" id="game-sb-resource">100%</span></div>
+                        </div>
+                        <div class="advice-box game-advice">
+                            <h4>🧚‍♀️ Pháp Sư Dạy:</h4>
+                            <p id="game-sb-advice">Chọn giống cây rồi bấm "TRỒNG!" nhé bé!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GAME TAB: Cửa Hàng -->
+                <div id="game-tab-shop" class="tab-page">
+                    <div class="page-header game-header">
+                        <h2>🏪 Cửa Hàng</h2>
+                        <p class="page-desc">Mua vật phẩm bằng xu vàng!</p>
+                    </div>
+                    <div class="shop-balance">
+                        💰 Túi tiền: <strong id="shop-coins-val">200</strong> xu
+                    </div>
+                    <div class="sub-tabs game-sub-tabs">
+                        <button class="sub-tab active" onclick="switchShopTab('consumables', this)">🍎 Vật phẩm</button>
+                        <button class="sub-tab" onclick="switchShopTab('real-rewards', this)">🎟️ Đổi quà</button>
+                    </div>
+                    <div class="shop-content">
+                        <div id="shop-consumables" class="shop-tab active"></div>
+                        <div id="shop-real-rewards" class="shop-tab"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== BOTTOM TAB NAVIGATION ===== -->
+            <!-- Pro Mode Tabs -->
+            <nav class="bottom-nav" id="pro-bottom-nav">
+                <button class="nav-item active" onclick="switchProTab('overview', this)">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Tổng quan</span>
+                </button>
+                <button class="nav-item" onclick="switchProTab('field', this)">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-label">Bản đồ</span>
+                </button>
+                <button class="nav-item" onclick="switchProTab('diary', this)">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-label">Nhật ký</span>
+                </button>
+                <button class="nav-item" onclick="switchProTab('library', this)">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-label">Cẩm nang</span>
+                </button>
+                <button class="nav-item" onclick="switchProTab('lab', this)">
+                    <span class="nav-icon">🧪</span>
+                    <span class="nav-label">Thí nghiệm</span>
+                </button>
+                <button class="nav-item" onclick="switchProTab('more', this)">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Quản lý</span>
+                </button>
+            </nav>
+
+            <!-- Game Mode Tabs -->
+            <nav class="bottom-nav game-bottom-nav" id="game-bottom-nav" style="display:none;">
+                <button class="nav-item active" onclick="switchGameTab('profile', this)">
+                    <span class="nav-icon">🧒</span>
+                    <span class="nav-label">Nhân vật</span>
+                </button>
+                <button class="nav-item" onclick="switchGameTab('garden', this)">
+                    <span class="nav-icon">🌳</span>
+                    <span class="nav-label">Khu vườn</span>
+                </button>
+                <button class="nav-item" onclick="switchGameTab('book', this)">
+                    <span class="nav-icon">📖</span>
+                    <span class="nav-label">Cẩm nang</span>
+                </button>
+                <button class="nav-item" onclick="switchGameTab('lab', this)">
+                    <span class="nav-icon">🧪</span>
+                    <span class="nav-label">Thí nghiệm</span>
+                </button>
+                <button class="nav-item" onclick="switchGameTab('shop', this)">
+                    <span class="nav-icon">🏪</span>
+                    <span class="nav-label">Cửa hàng</span>
+                </button>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Avatar Picker Modal -->
+    <div id="avatar-modal" class="modal-overlay" onclick="closeAvatarPicker(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>🥕 Chọn Avatar Cho Bé</h3>
+                <button class="modal-close" onclick="closeAvatarPicker()">✕</button>
+            </div>
+            <p class="modal-desc">Chọn hình đại diện yêu thích cho nông dân nhí!</p>
+            <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+    </div>
+
+    <!-- Location Fallback Modal -->
+    <div id="location-modal" class="modal-overlay" onclick="closeLocationModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>📍 Chọn Khu Vực</h3>
+                <button class="modal-close" onclick="closeLocationModal()">✕</button>
+            </div>
+            <p class="modal-desc">Không lấy được GPS? Chọn tỉnh/thành gần ruộng của bác:</p>
+            <select id="province-select" class="province-select"></select>
+            <button class="btn-primary btn-lg" style="width:100%;margin-top:1rem" onclick="applyManualLocation()">Áp dụng vị trí</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
