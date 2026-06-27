@@ -129,7 +129,7 @@ class Farm3DEngine {
         // Kết nối đến FastAPI WebSockets
         const isProd = window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost';
         const wsProtocol = isProd ? "wss://" : "ws://";
-        const wsHost = isProd ? "agriverse-api.onrender.com" : "localhost:8000";
+        const wsHost = isProd ? "agriverse-p7sh.onrender.com" : "localhost:8000";
         const wsUrl = `${wsProtocol}${wsHost}/ws/farm/${this.farmId}`;
         try {
             this.ws = new WebSocket(wsUrl);

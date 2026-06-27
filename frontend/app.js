@@ -4,7 +4,7 @@
 // ================================================================
 
 const isProd = window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost';
-const BACKEND_URL = isProd ? "https://agriverse-api.onrender.com" : "http://127.0.0.1:8000";
+const BACKEND_URL = isProd ? "https://agriverse-p7sh.onrender.com" : "http://127.0.0.1:8000";
 
 const API_BASE = `${BACKEND_URL}/gamification`;
 const WEATHER_API = `${BACKEND_URL}/weather`;
