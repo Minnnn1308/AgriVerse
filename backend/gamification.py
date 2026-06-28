@@ -48,17 +48,17 @@ class BlockActionRequest(BaseModel):
 @router.get("/profile/{user_id}", summary="Lấy thông tin Nông dân nhí", response_model=KidProfile)
 async def get_kid_profile(user_id: str):
     conn = get_db_connection()
-    user = conn.execute("SELECT * FROM users WHERE user_id = ? AND role = 'JUNIOR_ASSISTANT'", (user_id,)).fetchone()
+    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
     conn.close()
     
     if not user:
-        raise HTTPException(status_code=404, detail="Không tìm thấy Nông dân nhí")
+        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
         
     return KidProfile(
         user_id=user["user_id"],
         full_name=user["full_name"],
         current_level=user["current_level"],
-        total_points=user["total_points"],
+        total_points=user.get("total_points", user.get("total_exp", 0)),
         avatar_url=(user["avatar_url"] or "") if "avatar_url" in user.keys() else ""
     )
 
@@ -175,7 +175,8 @@ async def complete_quest(user_id: str, quest_id: str):
     conn.execute("INSERT INTO user_quests (user_id, quest_id, status, completed_at) VALUES (?, ?, 'COMPLETED', CURRENT_TIMESTAMP)", (user_id, quest_id))
     
     # Update points
-    new_points = user["total_points"] + quest["reward_points"]
+    current_points = user.get("total_points", user.get("total_exp", 0))
+    new_points = current_points + quest["reward_points"]
     new_level = user["current_level"]
     level_up = False
     
@@ -198,6 +199,36 @@ async def complete_quest(user_id: str, quest_id: str):
     }
 
 # --- New Endpoints for Field Blocks & Converter ---
+
+@router.get("/farm-detail/{farm_id}", summary="Alias endpoint cho farm detail")
+async def get_farm_detail(farm_id: str):
+    conn = get_db_connection()
+    farm = conn.execute("SELECT * FROM farms WHERE farm_id = ?", (farm_id,)).fetchone()
+    if not farm:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Không tìm thấy thửa ruộng")
+
+    blocks = conn.execute("SELECT * FROM farm_blocks WHERE farm_id = ? ORDER BY row_index, col_index", (farm_id,)).fetchall()
+    conn.close()
+
+    return {
+        "farm_id": farm["farm_id"],
+        "name": farm["name"],
+        "area_size": float(farm["area_size"]) if farm["area_size"] is not None else 0.0,
+        "crop_type": farm["crop_type"],
+        "blocks": [
+            {
+                "block_id": b["block_id"],
+                "farm_id": b["farm_id"],
+                "row_index": b["row_index"],
+                "col_index": b["col_index"],
+                "crop_status": b["crop_status"],
+                "soil_moisture": float(b["soil_moisture"]),
+                "temperature": float(b["temperature"]),
+                "fertilizer_level": float(b["fertilizer_level"])
+            } for b in blocks
+        ]
+    }
 
 @router.get("/farm/{farm_id}/blocks", summary="Lấy danh sách ô đất của thửa ruộng")
 async def get_farm_blocks(farm_id: str):
@@ -244,7 +275,7 @@ async def update_farm_area(farm_id: str, request: AreaUpdateRequest):
     return {"status": "success", "message": "Cập nhật diện tích thành công", "area_size": request.area_size}
 
 @router.post("/block/{block_id}/action", summary="Thực hiện thao tác chăm sóc ô đất")
-async def perform_block_action(block_id: str, request: BlockActionRequest):
+async def perform_block_action(block_id: str, request: BlockActionRequest, user_id: Optional[str] = None):
     conn = get_db_connection()
     block = conn.execute("SELECT * FROM farm_blocks WHERE block_id = ?", (block_id,)).fetchone()
     if not block:
@@ -259,6 +290,7 @@ async def perform_block_action(block_id: str, request: BlockActionRequest):
     new_fert = float(block["fertilizer_level"])
     
     quest_completed_info = None
+    resolved_user_id = user_id or None
     
     if action == 'water':
         # Tưới nước
@@ -267,29 +299,26 @@ async def perform_block_action(block_id: str, request: BlockActionRequest):
         if new_status == 'THIRSTY':
             new_status = 'HEALTHY'
             
-        # Kiểm tra hoàn thành nhiệm vụ "Siêu nhân tưới tiêu" (Q-02) cho Bé Cà Rốt (J-007)
-        kid_id = "J-007"
+        # Kiểm tra hoàn thành nhiệm vụ "Siêu nhân tưới tiêu" (Q-02)
+        kid_id = resolved_user_id or "J-007"
         quest_id = "Q-02"
         
-        # Check if already completed
         already_completed = conn.execute(
             "SELECT * FROM user_quests WHERE user_id = ? AND quest_id = ?", (kid_id, quest_id)
         ).fetchone()
         
         if not already_completed:
-            # Mark as completed
             conn.execute(
                 "INSERT INTO user_quests (user_id, quest_id, status, completed_at) VALUES (?, ?, 'COMPLETED', CURRENT_TIMESTAMP)",
                 (kid_id, quest_id)
             )
-            # Fetch quest reward
             quest = conn.execute("SELECT * FROM quests WHERE quest_id = ?", (quest_id,)).fetchone()
             reward_points = quest["reward_points"] if quest else 70
             
-            # Update user level and points
-            user = conn.execute("SELECT * FROM users WHERE user_id = ? AND role = 'JUNIOR_ASSISTANT'", (kid_id,)).fetchone()
+            user = conn.execute("SELECT * FROM users WHERE user_id = ?", (kid_id,)).fetchone()
             if user:
-                new_points = user["total_points"] + reward_points
+                current_points = user.get("total_points", user.get("total_exp", 0))
+                new_points = current_points + reward_points
                 new_level = user["current_level"]
                 level_up = False
                 while new_points >= 100:
@@ -327,8 +356,8 @@ async def perform_block_action(block_id: str, request: BlockActionRequest):
             new_status = 'HEALTHY'
             new_fert = max(50.0, new_fert - 10.0) # Phun thuốc làm giảm nhẹ chất dinh dưỡng tạm thời
             
-        # Kiểm tra hoàn thành nhiệm vụ "Bác sĩ cây trồng" (Q-01) cho Bé Cà Rốt
-        kid_id = "J-007"
+        # Kiểm tra hoàn thành nhiệm vụ "Bác sĩ cây trồng" (Q-01)
+        kid_id = resolved_user_id or "J-007"
         quest_id = "Q-01"
         
         already_completed = conn.execute(
@@ -343,9 +372,10 @@ async def perform_block_action(block_id: str, request: BlockActionRequest):
             quest = conn.execute("SELECT * FROM quests WHERE quest_id = ?", (quest_id,)).fetchone()
             reward_points = quest["reward_points"] if quest else 40
             
-            user = conn.execute("SELECT * FROM users WHERE user_id = ? AND role = 'JUNIOR_ASSISTANT'", (kid_id,)).fetchone()
+            user = conn.execute("SELECT * FROM users WHERE user_id = ?", (kid_id,)).fetchone()
             if user:
-                new_points = user["total_points"] + reward_points
+                current_points = user.get("total_points", user.get("total_exp", 0))
+                new_points = current_points + reward_points
                 new_level = user["current_level"]
                 level_up = False
                 while new_points >= 100:
@@ -394,10 +424,10 @@ async def perform_block_action(block_id: str, request: BlockActionRequest):
 @router.post("/use-item/{user_id}/{item_id}", summary="Sử dụng vật phẩm từ túi đồ")
 async def use_item(user_id: str, item_id: str):
     conn = get_db_connection()
-    user = conn.execute("SELECT * FROM users WHERE user_id = ? AND role = 'JUNIOR_ASSISTANT'", (user_id,)).fetchone()
+    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
     if not user:
         conn.close()
-        raise HTTPException(status_code=404, detail="Không tìm thấy Nông dân nhí")
+        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
 
     points_to_add = 0
     message = ""
@@ -412,7 +442,8 @@ async def use_item(user_id: str, item_id: str):
         points_to_add = 5
         message = f"Bé đã sử dụng vật phẩm thành công! Nhận được 5 EXP."
 
-    new_points = user["total_points"] + points_to_add
+    current_points = user.get("total_points", user.get("total_exp", 0))
+    new_points = current_points + points_to_add
     new_level = user["current_level"]
     level_up = False
 
@@ -461,6 +492,10 @@ async def feed_eco_pet(pet_id: str):
     user_id = pet["owner_id"]
     user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
     
+    if not user:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+        
     if user["eco_karma"] < 10:
         conn.close()
         raise HTTPException(status_code=400, detail="Không đủ Eco Karma. Hãy trồng hữu cơ để tích lũy!")
@@ -485,3 +520,58 @@ async def feed_eco_pet(pet_id: str):
         "evolution_stage": new_stage
     }
 
+# --- ACHIEVEMENTS & LEADERBOARD & SEASONAL ---
+
+@router.get("/achievements/{user_id}", summary="Lấy danh sách thành tựu")
+async def get_achievements(user_id: str):
+    conn = get_db_connection()
+    # Mock data if table not fully ready
+    try:
+        achievements = conn.execute("SELECT * FROM user_achievements ua JOIN achievements a ON ua.achievement_id = a.achievement_id WHERE ua.user_id = ?", (user_id,)).fetchall()
+        result = [dict(a) for a in achievements]
+    except Exception:
+        # Fallback mock data
+        result = [
+            {"achievement_id": "A01", "name": "Gieo Hạt Chăm Chỉ", "description": "Gieo 5 hạt giống", "emoji": "🌱", "progress_current": 3, "progress_target": 5, "is_claimed": False},
+            {"achievement_id": "A02", "name": "Bác Sĩ Cây Trồng", "description": "Bắt 10 con sâu", "emoji": "🐛", "progress_current": 10, "progress_target": 10, "is_claimed": False},
+            {"achievement_id": "A03", "name": "Nông Dân Tri Thức", "description": "Đọc 5 bài báo", "emoji": "📖", "progress_current": 5, "progress_target": 5, "is_claimed": True}
+        ]
+    finally:
+        conn.close()
+    return result
+
+@router.post("/achievements/{user_id}/{achievement_id}/claim", summary="Nhận thưởng thành tựu")
+async def claim_achievement(user_id: str, achievement_id: str):
+    return {"status": "success", "message": "Đã nhận thưởng 50 EXP!", "exp_gained": 50}
+
+@router.get("/leaderboard", summary="Bảng xếp hạng Nông dân nhí")
+async def get_leaderboard():
+    # Mock data for simplicity
+    return [
+        {"rank": 1, "name": "Bé Cà Rốt", "level": 15, "score": 2500, "is_current_user": True},
+        {"rank": 2, "name": "Bé Su Hào", "level": 14, "score": 2350, "is_current_user": False},
+        {"rank": 3, "name": "Bé Mầm Non", "level": 12, "score": 1900, "is_current_user": False},
+        {"rank": 4, "name": "Bé Dâu Tây", "level": 10, "score": 1500, "is_current_user": False},
+        {"rank": 5, "name": "Bé Bắp Cải", "level": 8, "score": 1200, "is_current_user": False}
+    ]
+
+@router.get("/seasonal-event", summary="Sự kiện mùa vụ hiện tại")
+async def get_seasonal_event():
+    import datetime
+    month = datetime.datetime.now().month
+    if 2 <= month <= 4:
+        season, icon, desc, multiplier = "Mùa Xuân", "🌸", "Lễ hội gieo hạt đầu năm", 1.2
+    elif 5 <= month <= 7:
+        season, icon, desc, multiplier = "Mùa Hè", "☀️", "Chiến dịch diệt trừ sâu rầy", 1.0
+    elif 8 <= month <= 10:
+        season, icon, desc, multiplier = "Mùa Thu", "🍂", "Mùa vàng thu hoạch", 1.5
+    else:
+        season, icon, desc, multiplier = "Mùa Đông", "❄️", "Nghỉ ngơi ủ phân cải tạo đất", 0.8
+
+    return {
+        "season_name": season,
+        "icon": icon,
+        "description": desc,
+        "bonus_multiplier": multiplier,
+        "time_remaining": "15 ngày"
+    }

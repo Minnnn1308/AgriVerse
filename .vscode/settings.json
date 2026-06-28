@@ -2,5 +2,8 @@
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python.analysis.extraPaths": [
         "./backend"
+    ],
+    "cursorpyright.analysis.extraPaths": [
+        "./backend"
     ]
 }

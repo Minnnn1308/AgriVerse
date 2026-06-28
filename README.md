@@ -1,26 +1,53 @@
-# Siêu dự án: Hệ thống quản lý liên minh nông hộ ứng dụng Game hóa và Trí tuệ nhân tạo (Agtech-Platform)
+# Siêu dự án: AgriVerse (Agtech-Platform) v0.0.8.0
+**Đại cách mạng Nông nghiệp số dành cho Nông dân Việt Nam**
 
-## 1. Tầm nhìn chiến lược và Giá trị cốt lõi
-- **Giải quyết rào cản công nghệ:** Giao diện kép. Thế hệ trẻ (học sinh/con em nông dân) đóng vai trò "Trợ lý số", nhập liệu thông qua giao diện Game nông trại 2D/3D trực quan, trực tiếp quản lý ruộng vườn hộ bố mẹ.
-- **Minh bạch chuỗi cung ứng:** Dữ liệu chuẩn xác cập nhật hằng ngày (Real-time Data) cung cấp cho các tập đoàn thu mua (Nestlé, Trung Nguyên...) để bao tiêu sản phẩm, xóa bỏ khâu trung gian ép giá.
+AgriVerse là một nền tảng quản lý nông nghiệp ứng dụng **Gamification (Game hóa)**, **Trí tuệ Nhân tạo (AI)**, và kiến trúc **OOP nâng cao**, được thiết kế đặc biệt cho thị trường Việt Nam (phù hợp với nông dân quy mô nhỏ, ít tiếp cận công nghệ cao, nhà kính).
 
-## 2. Kiến trúc Hệ thống và Giải pháp Công nghệ
-Thiết kế theo mô hình Modular Design siêu hiệu năng:
+---
 
-### 2.1. Frontend (Mobile App)
-- **Công nghệ:** Flutter / React Native (Tối ưu Android & iOS).
-- **Chế độ Đôi (Dual-UI):**
-  - *Giao diện Chuyên nghiệp (Bố mẹ/HTX):* Bảng biểu, đồ thị độ ẩm đất, lịch trình bón phân, sản lượng dự kiến.
-  - *Giao diện Game hóa (Junior Mode - Trẻ em):* Đất thực tế thành ô đất hoạt hình. Nhật ký nông nghiệp thành "Nhiệm vụ hằng ngày" (Quests). Tăng cấp (Level up) và đổi thưởng (sữa, ba lô...).
+## 🚀 Các tính năng nổi bật trong phiên bản v0.0.8.0
 
-### 2.2. Backend (API Layer)
-- **Công nghệ:** Python (FastAPI / Flask), Docker, Serverless trên Cloud (AWS/GCP).
-- **Nhiệm vụ:** Quản lý tài khoản, phân quyền, xác thực dữ liệu, bảo mật giao tiếp với Mobile App.
+### 1. Kiến trúc Java OOP cốt lõi (Core Domain)
+Áp dụng thuần thục các Design Patterns chuyên nghiệp:
+- **Strategy Pattern**: Quản lý chiến lược bón phân (Hữu cơ, Hóa học) linh hoạt, dễ dàng chuyển đổi phương pháp canh tác.
+- **Command Pattern**: Hỗ trợ tính năng "Hoàn tác" (Undo) khi nông dân vô tình bấm nhầm thao tác chăm sóc, giảm thiểu rủi ro dữ liệu sai.
+- **Singleton Pattern**: Quản lý nhật ký hệ thống (GameLogger) đồng nhất, tránh phân mảnh log khi scale hệ thống.
+- **Tính Đa hình (Polymorphism)**: Chế độ hiển thị (Pro Mode / Game Mode) tự động tương thích theo từng loại tài khoản (Nông dân / Trợ lý nhí).
 
-### 2.3. Computation Engine (Lõi tính toán siêu tốc)
-- **Công nghệ:** C++ tích hợp Python (pybind11 / ctypes).
-- **Nhiệm vụ:** Xử lý thuật toán nặng khi scale lên hàng trăm ngàn user, tốc độ phản hồi mili giây.
+### 2. Backend & AI (FastAPI + SQLite/PostgreSQL)
+- **AI Chatbot (Rule-based)**: Trợ lý ảo nông nghiệp giải đáp nhanh kỹ thuật canh tác, phòng trừ sâu bệnh, cải tạo đất chua. Hoạt động ổn định không cần API bên ngoài.
+- **Hệ thống Gamification mở rộng**: Tích hợp Bảng xếp hạng (Leaderboard), Sự kiện Mùa vụ (Seasonal Events), và Hệ thống Thành tựu (Achievements).
+- **Hệ thống Thú cưng Sinh thái (Eco-Pet)**: Nâng cấp trải nghiệm MMO, dùng "Eco Karma" kiếm được từ việc trồng trọt hữu cơ để nuôi thú cưng.
 
-### 2.4. Edge AI Layer (Trí tuệ nhân tạo biên)
-- **Công nghệ:** TensorFlow Lite nhúng trực tiếp vào Mobile App.
-- **Nhiệm vụ:** Chụp ảnh lá cây chẩn đoán bệnh offline. Chạy trực tiếp trên thiết bị để giảm chi phí server AI về 0.
+### 3. Frontend / PWA (Vanilla JS + CSS Hiện đại)
+- **Thiết kế Mobile-first & PWA**: Ứng dụng hỗ trợ cài đặt thẳng lên màn hình chính điện thoại nông dân (Installable PWA) và hoạt động mượt mà (Offline-first / Service Worker).
+- **Chế độ Tối (Dark Mode) & Particle Animations**: Bảo vệ mắt cho người dùng khi làm việc đêm, tăng trải nghiệm thị giác.
+- **Biểu đồ Radar (Chart.js)**: Trực quan hóa dữ liệu dinh dưỡng đất (NPK, độ ẩm, pH).
+- **Báo cáo Lợi nhuận (Profit Report)**: Đưa ra cái nhìn rõ nét về chi phí, doanh thu, lợi nhuận thực tế sau quá trình thí nghiệm (Sandbox).
+
+---
+
+## 🛠 Hướng dẫn Khởi chạy Hệ thống
+
+### 1. Backend (API & Database)
+```bash
+cd backend
+python init_db.py       # (Lần đầu) Khởi tạo Database
+python migrate_v7.py    # (Cập nhật) Chạy migration v0.0.7.0
+python main.py          # Chạy server FastAPI tại http://localhost:8000
+```
+
+### 2. Frontend (PWA Client)
+Sử dụng Live Server hoặc mở trực tiếp file `index.html` trong thư mục `frontend/`. 
+Do đã tích hợp **Service Worker**, ứng dụng có thể lưu cache và hoạt động ngoại tuyến sau lần tải đầu tiên.
+
+### 3. Module Java OOP (Giảng dạy / Lõi Engine)
+Sử dụng IDE (IntelliJ / Eclipse) hoặc chạy thông qua Terminal:
+```bash
+cd java_oop_module/src
+javac GamifiedFarmApp.java
+java GamifiedFarmApp
+```
+
+---
+*Tối ưu hóa dành cho Nông dân Việt - Linh hoạt, Trực quan, Dễ sử dụng!*

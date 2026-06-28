@@ -1,0 +1,21 @@
+{
+  "name": "AgriVerse x100",
+  "short_name": "AgriVerse",
+  "description": "Hệ thống quản lý liên minh nông hộ ứng dụng Game hóa & AI (Bản 0.0.8.0)",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#22c55e",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=AgriVerse192",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=AgriVerse512",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

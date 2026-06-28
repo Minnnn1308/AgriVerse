@@ -1,0 +1,292 @@
+
+/* ==================== NEW V0.0.7.0 ELEMENTS ==================== */
+
+/* Particle Canvas */
+#particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+    display: block;
+}
+
+/* Seasonal Banner */
+.seasonal-banner {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-card), var(--green-50));
+    border: 2px dashed var(--green-400);
+    gap: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+.dark-theme .seasonal-banner {
+    background: linear-gradient(135deg, var(--bg-card), var(--green-800));
+    border-color: var(--green-600);
+}
+.seasonal-icon {
+    font-size: 2.5rem;
+}
+.seasonal-info h3 {
+    color: var(--green-700);
+    margin-bottom: 0.2rem;
+}
+.dark-theme .seasonal-info h3 { color: var(--green-400); }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+/* Profit Report */
+.profit-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+.profit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border-light);
+}
+.profit-item:last-child { border-bottom: none; }
+.profit-label { color: var(--text-secondary); }
+.profit-value { font-weight: bold; }
+.profit-value.positive { color: var(--green-600); }
+.profit-value.negative { color: var(--red-500); }
+.profit-item.highlight {
+    background: var(--green-50);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+}
+.dark-theme .profit-item.highlight { background: rgba(34,197,94,0.1); }
+.profit-item.highlight .profit-value {
+    color: var(--green-600);
+    font-size: 1.2rem;
+}
+
+/* Chatbot FAB & Modal */
+.chatbot-fab {
+    position: fixed;
+    bottom: calc(var(--nav-height) + 20px);
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: pulse-grow 3s infinite;
+}
+.chatbot-fab:hover {
+    transform: scale(1.1);
+}
+.chatbot-window {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60vh;
+    background: var(--bg-card);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chatbot-header {
+    padding: 1rem;
+    background: var(--bg-header);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+.chatbot-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--bg-primary);
+}
+.chat-msg {
+    max-width: 85%;
+    padding: 0.8rem 1rem;
+    border-radius: 15px;
+    line-height: 1.4;
+}
+.bot-msg {
+    align-self: flex-start;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    border-bottom-left-radius: 5px;
+}
+.user-msg {
+    align-self: flex-end;
+    background: var(--green-500);
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+.chatbot-input-area {
+    padding: 1rem;
+    background: var(--bg-card);
+    display: flex;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-light);
+}
+.chatbot-input-area input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 25px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Eco-Pet System */
+.eco-pet-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.pet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.karma-badge {
+    background: rgba(34,197,94,0.1);
+    color: var(--green-600);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+}
+.pet-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--game-bg);
+    padding: 1rem;
+    border-radius: 15px;
+    border: 2px dashed var(--game-border);
+}
+.pet-avatar {
+    font-size: 3.5rem;
+    animation: bounce 2s infinite;
+}
+.pet-info {
+    text-align: left;
+    flex: 1;
+}
+.pet-loyalty {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Achievements */
+.achievements-list, .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem;
+    background: var(--game-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+}
+.achievement-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+    filter: grayscale(1);
+    transition: all 0.3s;
+}
+.achievement-item.claimed .achievement-icon, .achievement-item.ready .achievement-icon {
+    opacity: 1;
+    filter: none;
+}
+.achievement-item.ready {
+    border-color: var(--green-400);
+    background: rgba(74, 222, 128, 0.1);
+}
+.achievement-info {
+    flex: 1;
+}
+.achievement-title {
+    font-weight: bold;
+    color: var(--game-text);
+}
+.achievement-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Leaderboard */
+.lb-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    background: var(--game-bg);
+    border-radius: 12px;
+    gap: 1rem;
+}
+.lb-item.current-user {
+    border: 2px solid var(--amber-400);
+    background: var(--amber-50);
+}
+.dark-theme .lb-item.current-user { background: rgba(245,158,11,0.1); }
+.lb-rank {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    min-width: 30px;
+    text-align: center;
+}
+.lb-rank.rank-1 { color: #fbbf24; }
+.lb-rank.rank-2 { color: #94a3b8; }
+.lb-rank.rank-3 { color: #b45309; }
+.lb-name {
+    flex: 1;
+    font-weight: bold;
+    color: var(--game-text);
+}
+.lb-score {
+    font-weight: bold;
+    color: var(--green-600);
+}

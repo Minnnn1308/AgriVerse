@@ -1,10 +1,9 @@
 package agtech;
 
-import agtech.models.User;
-import agtech.models.JuniorAssistant;
-import agtech.models.Quest;
-import agtech.services.QuestSubject;
-import agtech.services.NotificationObserver;
+import agtech.models.*;
+import agtech.services.*;
+import agtech.strategies.*;
+import agtech.commands.*;
 import agtech.dao.UserDAO;
 
 import java.util.List;
@@ -12,11 +11,14 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         System.out.println("=====================================================");
-        System.out.println("HỆ THỐNG AGTECH-PLATFORM: GAME HÓA NÔNG NGHIỆP");
-        System.out.println("Kiến trúc OOP nâng cao (Design Patterns Applied)");
+        System.out.println("🔥 AGTECH-PLATFORM v0.0.7.0: ĐẠI CÁCH MẠNG NÔNG NGHIỆP");
+        System.out.println(" Kiến trúc OOP Nâng Cao (Strategy, Command, Singleton)");
         System.out.println("=====================================================\n");
         
-        // 1. Khởi tạo dữ liệu người dùng (Áp dụng DAO Pattern lấy từ CSDL SQLite)
+        GameLogger logger = GameLogger.getInstance();
+        logger.log("SYSTEM", "Khởi động hệ thống v0.0.7.0");
+
+        // 1. DAO & Tính Đa hình
         UserDAO userDAO = new UserDAO();
         List<User> users = userDAO.getAllUsers();
         
@@ -24,41 +26,55 @@ public class Main {
             System.out.println("Không tìm thấy user nào trong DB!");
             return;
         }
-        
-        // Duyệt qua danh sách user và gọi loginDashboard() (Tính Đa Hình)
+
+        System.out.println("\n--- [1] TÍNH ĐA HÌNH: ĐĂNG NHẬP ---");
         for (User u : users) {
             u.loginDashboard();
         }
-        
-        System.out.println("--- TIẾN TRÌNH LÀM NHIỆM VỤ NÔNG TRẠI (GAMIFICATION) ---");
-        
-        // Lấy tài khoản của Bé Cà Rốt ra để làm nhiệm vụ
-        JuniorAssistant kid = (JuniorAssistant) users.get(1);
-        
-        // Khởi tạo hệ thống quản lý Quest (Áp dụng Observer Pattern)
-        QuestSubject questManager = new QuestSubject();
-        
-        // Đăng ký các Observer lắng nghe sự kiện hoàn thành nhiệm vụ
-        NotificationObserver htxObserver = new NotificationObserver("HTX_Nestle_ĐắkLắk (Hệ thống giám sát)");
-        NotificationObserver parentObserver = new NotificationObserver("Phụ huynh Nguyễn Văn Hải (App mobile)");
-        
-        questManager.addObserver(htxObserver);
-        questManager.addObserver(parentObserver);
 
-        // Khởi tạo các nhiệm vụ (Real-time data update)
-        Quest q1 = new Quest("Q-01", "Bác sĩ cây trồng", "Cầm smartphone chụp 3 lá cà phê bị vàng", 40);
-        Quest q2 = new Quest("Q-02", "Siêu nhân tưới tiêu", "Mở van hệ thống tưới nhỏ giọt 15 phút", 70);
+        System.out.println("\n--- [2] ECO-PET & ACHIEVEMENTS ---");
+        JuniorAssistant kid = (JuniorAssistant) users.get(1);
+        EcoPet dragon = new EcoPet("PET_01", "Bé Rồng Đất", "Rồng Đất");
+        System.out.println(dragon);
+        dragon.feed();
         
-        // Thực hiện nhiệm vụ thông qua JuniorAssistant (sử dụng QuestSubject)
-        kid.completeQuest(q1, questManager);
-        System.out.println();
-        kid.completeQuest(q2, questManager); // Sẽ đạt 110 điểm => Kích hoạt hàm Level Up!
-        System.out.println();
+        Achievement gieoHat = new Achievement("A01", "Gieo Hạt Chăm Chỉ", "Gieo 3 hạt giống", "🌱", 3);
+        System.out.println(gieoHat);
+        gieoHat.incrementProgress();
+        gieoHat.incrementProgress();
+        gieoHat.incrementProgress(); // Sẽ mở khóa
+        int reward = gieoHat.claim();
+        if (reward > 0) kid.addPoints(reward);
+
+        System.out.println("\n--- [3] STRATEGY & COMMAND PATTERN: CHĂM SÓC ĐẤT ---");
+        FarmBlock blockA1 = new FarmBlock("A1-CàPhê");
+        System.out.println("Trạng thái ban đầu: " + blockA1);
+
+        // Tưới nước bằng Command
+        ActionCommand waterCmd = new WaterCommand(blockA1);
+        waterCmd.execute();
         
-        // Thử hoàn thành lại nhiệm vụ đã xong
-        kid.completeQuest(q1, questManager); 
+        // Nông dân lỡ tay tưới nhầm -> Hoàn tác!
+        waterCmd.undo();
+
+        // Bón phân hóa học
+        ActionCommand chemCmd = new FertilizeCommand(blockA1, new ChemicalStrategy());
+        chemCmd.execute();
         
-        System.out.println("=====================================================");
-        System.out.println("DỮ LIỆU ĐÃ ĐƯỢC ĐỒNG BỘ THÀNH CÔNG VỀ HTX TRUNG TÂM!");
+        // Thấy đất bị chua, quyết định hoàn tác hóa học
+        chemCmd.undo();
+
+        // Đổi sang bón phân hữu cơ (VietGAP)
+        ActionCommand orgCmd = new FertilizeCommand(blockA1, new OrganicStrategy());
+        orgCmd.execute();
+
+        System.out.println("\n--- [4] LỊCH SỬ HỆ THỐNG (SINGLETON) ---");
+        List<String> logs = logger.getAllLogs();
+        for (String log : logs) {
+            System.out.println(log);
+        }
+
+        System.out.println("\n=====================================================");
+        System.out.println("✅ HOÀN THÀNH DEMO KIẾN TRÚC OOP MỚI!");
     }
 }

@@ -6,3 +6,7 @@ psycopg2-binary
 sqlalchemy
 numpy
 httpx
+passlib[bcrypt]
+bcrypt
+pyjwt
+python-multipart

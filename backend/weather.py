@@ -1,5 +1,5 @@
 """
-AgriVerse Weather Module v0.0.6.0
+AgriVerse Weather Module v0.0.7.0
 Dự báo thời tiết theo tọa độ GPS, đồng bộ mô hình số trị
 với mạng lưới trạm quan trắc KTTV/NCHMF Việt Nam.
 """

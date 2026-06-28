@@ -3,24 +3,23 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from gamification import router as gamification_router
 from weather import router as weather_router
+from auth import router as auth_router
 import uvicorn
 import asyncio
 import json
 from typing import List
 
+from ai_chat import router as ai_router
+
 app = FastAPI(
     title="Agtech-Platform API - Scale x100",
-    description="Hệ thống quản lý liên minh nông hộ ứng dụng Game hóa (Gamification) & AI (Bản 0.0.6.0)",
-    version="0.0.6.0"
+    description="Hệ thống quản lý liên minh nông hộ ứng dụng Game hóa (Gamification) & AI (Bản 0.0.8.0)",
+    version="0.0.8.0"
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500", 
-        "http://localhost:5500", 
-        "https://agriverse-vn-bl.vercel.app"
-    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,7 +55,7 @@ async def root():
             "status": "success",
             "message": "Agtech-Platform API x100 đã sẵn sàng!",
             "architecture": "FastAPI + WebSockets + PostgreSQL (Ready)",
-            "version": "0.0.6.0"
+            "version": "0.0.8.0"
         }
     )
 
@@ -89,8 +88,10 @@ async def websocket_endpoint(websocket: WebSocket, farm_id: str):
         manager.disconnect(websocket)
         print(f"Client {farm_id} disconnected")
 
+app.include_router(auth_router)
 app.include_router(gamification_router)
 app.include_router(weather_router)
+app.include_router(ai_router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
