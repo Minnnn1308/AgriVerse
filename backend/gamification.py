@@ -58,7 +58,7 @@ async def get_kid_profile(user_id: str):
         user_id=user["user_id"],
         full_name=user["full_name"],
         current_level=user["current_level"],
-        total_points=user.get("total_points", user.get("total_exp", 0)),
+        total_points=(user.get("total_points") or user.get("total_exp") or 0),
         avatar_url=(user["avatar_url"] or "") if "avatar_url" in user.keys() else ""
     )
 
@@ -317,7 +317,7 @@ async def perform_block_action(block_id: str, request: BlockActionRequest, user_
             
             user = conn.execute("SELECT * FROM users WHERE user_id = ?", (kid_id,)).fetchone()
             if user:
-                current_points = user.get("total_points", user.get("total_exp", 0))
+                current_points = (user.get("total_points") or user.get("total_exp") or 0)
                 new_points = current_points + reward_points
                 new_level = user["current_level"]
                 level_up = False
@@ -374,7 +374,7 @@ async def perform_block_action(block_id: str, request: BlockActionRequest, user_
             
             user = conn.execute("SELECT * FROM users WHERE user_id = ?", (kid_id,)).fetchone()
             if user:
-                current_points = user.get("total_points", user.get("total_exp", 0))
+                current_points = (user.get("total_points") or user.get("total_exp") or 0)
                 new_points = current_points + reward_points
                 new_level = user["current_level"]
                 level_up = False
@@ -442,7 +442,7 @@ async def use_item(user_id: str, item_id: str):
         points_to_add = 5
         message = f"Bé đã sử dụng vật phẩm thành công! Nhận được 5 EXP."
 
-    current_points = user.get("total_points", user.get("total_exp", 0))
+    current_points = (user.get("total_points") or user.get("total_exp") or 0)
     new_points = current_points + points_to_add
     new_level = user["current_level"]
     level_up = False
@@ -554,6 +554,33 @@ async def get_leaderboard():
         {"rank": 4, "name": "Bé Dâu Tây", "level": 10, "score": 1500, "is_current_user": False},
         {"rank": 5, "name": "Bé Bắp Cải", "level": 8, "score": 1200, "is_current_user": False}
     ]
+
+@router.get("/leaderboard/eco-karma", summary="Bảng xếp hạng Eco Karma (Kết nối Doanh nghiệp)")
+async def get_eco_karma_leaderboard():
+    conn = get_db_connection()
+    try:
+        users = conn.execute("SELECT user_id, full_name, role, eco_karma FROM users WHERE eco_karma > 0 ORDER BY eco_karma DESC LIMIT 10").fetchall()
+        return {"status": "success", "data": [dict(u) for u in users]}
+    finally:
+        conn.close()
+
+@router.post("/exchange-eco-karma/{user_id}", summary="Đổi điểm Eco Karma lấy quà tặng từ Doanh nghiệp")
+async def exchange_eco_karma(user_id: str, reward_id: str, cost: int):
+    conn = get_db_connection()
+    try:
+        user = conn.execute("SELECT eco_karma FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+        
+        if user['eco_karma'] < cost:
+            raise HTTPException(status_code=400, detail="Không đủ điểm Eco Karma")
+            
+        new_karma = user['eco_karma'] - cost
+        conn.execute("UPDATE users SET eco_karma = ? WHERE user_id = ?", (new_karma, user_id))
+        conn.commit()
+        return {"status": "success", "message": "Đổi quà thành công!", "remaining_karma": new_karma, "reward_id": reward_id}
+    finally:
+        conn.close()
 
 @router.get("/seasonal-event", summary="Sự kiện mùa vụ hiện tại")
 async def get_seasonal_event():

@@ -227,6 +227,11 @@ function enterMode(mode) {
         $('pro-mode-container').classList.add('active');
         $('pro-bottom-nav').style.display = 'flex';
         $('game-bottom-nav').style.display = 'none';
+        
+        // Ensure chart initializes ONLY when container is visible
+        if (typeof window.initSoilChart === 'function') {
+            setTimeout(() => { window.initSoilChart(); }, 100);
+        }
     } else {
         $('game-mode-container').classList.add('active');
         $('pro-bottom-nav').style.display = 'none';
@@ -1451,7 +1456,10 @@ function initLocationAndWeather() {
             return;
         } catch (e) { /* fall through */ }
     }
-    requestGeolocation();
+    
+    // Defer geolocation request to user interaction to prevent browser freeze on load
+    const nameEl = $('location-name');
+    if (nameEl) nameEl.innerText = 'Chưa thiết lập vị trí';
 }
 
 function requestGeolocation() {
@@ -1762,6 +1770,10 @@ function initSoilRadarChart() {
     const gridColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
     const textColor = isDark ? '#fff' : '#666';
 
+    ctx.parentElement.style.position = 'relative';
+    ctx.parentElement.style.height = '250px';
+    ctx.parentElement.style.width = '100%';
+
     window.soilRadarChart = new Chart(ctx, {
         type: 'radar',
         data: {
@@ -2050,7 +2062,13 @@ async function handleRegisterSubmit(event) {
             })
         });
         
-        const data = await res.json();
+        const raw = await res.text();
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (_) {
+            data = { detail: raw };
+        }
         if (res.ok) {
             showToast(`🎉 Đăng ký thành công! Mã số tài khoản của bác là: ${data.user_id}. Hãy tiến hành Đăng nhập nhé!`, 'success');
             // Switch to login tab and prefill username
@@ -2061,8 +2079,8 @@ async function handleRegisterSubmit(event) {
             showToast(`❌ Lỗi đăng ký: ${data.detail || "Không rõ nguyên nhân"}`, 'error');
         }
     } catch (e) {
-        alert("❌ Lỗi kết nối đến máy chủ Backend.");
-        console.error(e);
+        showToast(`❌ Lỗi kết nối đến máy chủ Backend: ${e.message || e}`, 'error');
+        console.error('Register error:', e);
     } finally {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
@@ -2089,7 +2107,13 @@ async function handleLoginSubmit(event) {
             })
         });
         
-        const data = await res.json();
+        const raw = await res.text();
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (_) {
+            data = { detail: raw };
+        }
         if (res.ok) {
             // Save session
             localStorage.setItem('agriverse_token', data.token);
@@ -2126,8 +2150,8 @@ async function handleLoginSubmit(event) {
             showToast(`❌ Đăng nhập thất bại: ${data.detail || "Sai thông tin tài khoản"}`, 'error');
         }
     } catch (e) {
-        alert("❌ Lỗi kết nối đến máy chủ Backend.");
-        console.error(e);
+        showToast(`❌ Lỗi kết nối đến máy chủ Backend: ${e.message || e}`, 'error');
+        console.error('Login error:', e);
     } finally {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;

@@ -11,6 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="v9_styles.css">
 </head>
 <body>
     <div id="app">
@@ -351,6 +352,7 @@
                             <button class="btn-sm btn-primary" onclick="updateFarmArea('pro')">Lưu</button>
                         </div>
                         <p class="help-text">Mỗi ô = <span id="pro-block-size-text">0.05</span> ha (<span id="pro-block-size-m2-text">500</span> m²)</p>
+                        <button class="btn-primary" style="margin-top: 10px; width: 100%;" onclick="openGlobalDataEntry()">📓 Sổ Đo Lường (Nhập Tổng Thể)</button>
                     </div>
 
                     <!-- Field Grid -->
@@ -431,6 +433,16 @@
                             <button class="btn-action water" onclick="executeBlockAction('pro', 'water')">💦 Tưới</button>
                             <button class="btn-action fertilize" onclick="executeBlockAction('pro', 'fertilize')">🍎 Bón</button>
                             <button class="btn-action pest" onclick="executeBlockAction('pro', 'treat_pest')">🐛 Trị sâu</button>
+                        </div>
+                    </div>
+
+                    <!-- AI Suggested Actions -->
+                    <div class="card" id="pro-suggested-actions">
+                        <h3 class="card-title">🤖 Hành Động Đề Xuất (AI)</h3>
+                        <div id="ai-action-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="padding: 15px; border-radius: 8px; background: var(--bg-primary); border: 1px dashed var(--border-light); color: var(--text-secondary); text-align: center;">
+                                Vui lòng nhập <strong>Sổ Đo Lường</strong> hoặc chọn 1 ô đất để AI phân tích.
+                            </div>
                         </div>
                     </div>
 
@@ -1039,6 +1051,7 @@
     </div>
 
     <script src="app.js"></script>
+    <script src="v9_features.js"></script>
     <script>
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {

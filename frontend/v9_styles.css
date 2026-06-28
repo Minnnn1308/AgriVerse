@@ -1,0 +1,164 @@
+/* v0.0.9.0 Styles: Digital Twin & To-Do List */
+
+/* To-Do List Dashboard */
+.v9-todo-container {
+    margin-top: 15px;
+}
+
+.v9-todo-item {
+    display: flex;
+    align-items: center;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+
+.v9-todo-item:hover {
+    border-color: var(--primary-color);
+}
+
+.v9-todo-checkbox {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.v9-todo-content {
+    flex: 1;
+}
+
+.v9-todo-title {
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--text-primary);
+}
+
+.v9-todo-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.v9-todo-badge {
+    background: #ffe0b2;
+    color: #e65100;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Sổ đo lường chờ nhập (Data Entry Queue) */
+.v9-data-entry-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.v9-data-entry-content {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.v9-data-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.v9-data-entry-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.v9-data-input-group {
+    margin-bottom: 15px;
+}
+
+.v9-data-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.v9-data-input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Kids SOS Button */
+.v9-sos-btn {
+    background: #ff5252;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 82, 82, 0.4);
+    animation: sosPulse 2s infinite;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+@keyframes sosPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+}
+
+/* Grid Heatmap overrides */
+.field-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 4px;
+    background: var(--bg-primary);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.v9-grid-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.v9-grid-cell:hover {
+    transform: scale(1.1);
+    z-index: 2;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.v9-moist-low { background-color: #ffccbc; }
+.v9-moist-med { background-color: #c8e6c9; }
+.v9-moist-high { background-color: #bbdefb; }

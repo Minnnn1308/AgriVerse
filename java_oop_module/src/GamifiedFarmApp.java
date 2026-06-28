@@ -1,7 +1,7 @@
 import agtech.models.*;
+import agtech.models.task.*;
+import agtech.events.*;
 import agtech.services.*;
-import agtech.strategies.*;
-import agtech.commands.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,55 +11,53 @@ import java.util.List;
 // ============================================================================
 
 public class GamifiedFarmApp {
-
-    // ============================================================================
-    // PHẦN DÀNH CHO BÀI TẬP LỚN OOP
-    // ============================================================================
-    
     public static void main(String[] args) {
         System.out.println("=====================================================");
-        System.out.println("🔥 AGTECH-PLATFORM v0.0.7.0: ĐẠI CÁCH MẠNG NÔNG NGHIỆP");
+        System.out.println("🔥 AGTECH-PLATFORM v0.0.9.0: DIGITAL TWIN & FAMILY FARMING");
         System.out.println("=====================================================\n");
         
         GameLogger logger = GameLogger.getInstance();
+        EventManager eventManager = EventManager.getInstance();
 
-        // 1. Khởi tạo dữ liệu người dùng (Demo Đa hình)
+        // 1. Khởi tạo dữ liệu người dùng
         List<User> users = new ArrayList<>();
-        users.add(new Farmer("F-991", "Bác Nguyễn Văn Hải", "HTX_Nestle_ĐắkLắk"));
-        users.add(new JuniorAssistant("J-007", "Bé Cà Rốt (Con bác Hải)"));
-        
-        System.out.println("--- [1] TÍNH ĐA HÌNH: ĐĂNG NHẬP ---");
-        for (User u : users) {
-            u.loginDashboard();
-        }
-        
-        System.out.println("\n--- [2] ECO-PET & ACHIEVEMENTS ---");
-        JuniorAssistant kid = (JuniorAssistant) users.get(1);
-        EcoPet dragon = new EcoPet("PET_01", "Bé Rồng Đất", "Rồng Đất");
-        System.out.println(dragon);
-        dragon.feed();
-        
-        Achievement gieoHat = new Achievement("A01", "Gieo Hạt Chăm Chỉ", "Gieo 3 hạt giống", "🌱", 3);
-        System.out.println(gieoHat);
-        gieoHat.incrementProgress();
-        gieoHat.incrementProgress();
-        gieoHat.incrementProgress();
-        int reward = gieoHat.claim();
-        if (reward > 0) kid.addPoints(reward);
+        Farmer parent = new Farmer("F-991", "Bác Nguyễn Văn Hải", "HTX_Nestle_ĐắkLắk");
+        JuniorAssistant kid = new JuniorAssistant("J-007", "Bé Cà Rốt");
+        users.add(parent);
+        users.add(kid);
 
-        System.out.println("\n--- [3] STRATEGY & COMMAND PATTERN ---");
-        FarmBlock blockA1 = new FarmBlock("A1-CàPhê");
+        // Đăng ký sự kiện Observer (Khi Task xong, thưởng điểm cho Kid)
+        eventManager.subscribe(task -> {
+            System.out.println("🎉 [Sự kiện UI Game] Nhận thông báo: Nhiệm vụ '" + task.getName() + "' đã hoàn thành!");
+            System.out.println("🌟 Bé Cà Rốt nhận được +15 điểm Eco Karma!");
+        });
         
-        ActionCommand chemCmd = new FertilizeCommand(blockA1, new ChemicalStrategy());
-        chemCmd.execute();
+        System.out.println("--- [1] LUỒNG NHIỆM VỤ BẤT ĐỒNG BỘ (STATE PATTERN) ---");
+        Task waterTask = new Task("T-001", "Tưới 200ml nước Khu A");
+        System.out.println("=> Hệ thống gợi ý: " + waterTask.getStateName());
         
-        System.out.println("\n(Nông dân thấy hóa học hại đất, quyết định hoàn tác...)");
-        chemCmd.undo();
+        // Trẻ em ấn gửi cho phụ huynh
+        waterTask.advanceState(); 
+        
+        // Phụ huynh làm xong ngoài đời, ấn hoàn thành
+        System.out.println("(Phụ huynh tưới xong, bấm nút Hoàn thành...)");
+        waterTask.advanceState();
+        eventManager.notifyTaskCompleted(waterTask); // Kích hoạt sự kiện Observer
 
-        ActionCommand orgCmd = new FertilizeCommand(blockA1, new OrganicStrategy());
-        orgCmd.execute();
+        System.out.println("\n--- [2] SỔ ĐO LƯỜNG & LAN TRUYỀN DỮ LIỆU (SPREAD SIMULATION) ---");
+        // Cuối ngày, Sổ chờ nhập gọi phụ huynh điền số liệu.
+        waterTask.advanceState(); // Chuyển sang Completed toàn bộ sau khi nhập liệu
 
-        System.out.println("\n--- [4] LỊCH SỬ HỆ THỐNG ---");
+        FarmGrid grid = new FarmGrid(3, 3);
+        System.out.println("Bản đồ đất trước khi nhập liệu:");
+        grid.printGridStatus();
+
+        // Nông dân cắm cảm biến ở góc ruộng (0, 0) đo được độ ẩm 85%
+        System.out.println("\n(Nông dân nhập: Độ ẩm ở tọa độ [0,0] là 85%)");
+        grid.applyMacroMeasurement(0, 0, 85.0);
+        grid.printGridStatus();
+
+        System.out.println("\n--- [3] LỊCH SỬ HỆ THỐNG ---");
         for (String log : logger.getAllLogs()) {
             System.out.println(log);
         }

@@ -132,6 +132,33 @@ CREATE TABLE eco_pets (
     loyalty INT DEFAULT 0
 );
 
+-- 8. Bảng Nhiệm vụ Bất đồng bộ (To-Do List v0.0.9.0)
+CREATE TABLE tasks (
+    task_id VARCHAR(50) PRIMARY KEY,
+    farm_id VARCHAR(50) NOT NULL REFERENCES farms(farm_id),
+    zone_id VARCHAR(50), -- Khu vực/ô đất áp dụng
+    type VARCHAR(50) NOT NULL, -- WATER, FERTILIZE, HARVEST, MEASURE
+    recommended_value DECIMAL(10, 2),
+    unit VARCHAR(20),
+    is_recurring BOOLEAN DEFAULT FALSE,
+    cron_schedule VARCHAR(100),
+    status VARCHAR(50) DEFAULT 'SUGGESTED', -- SUGGESTED, PENDING, COMPLETED
+    created_by VARCHAR(50) REFERENCES users(user_id), -- Ai tạo (VD: Trợ lý nhí)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+-- 9. Sổ Đo lường chờ nhập (Data Entry Queue v0.0.9.0)
+CREATE TABLE data_entry_queue (
+    queue_id VARCHAR(50) PRIMARY KEY,
+    task_id VARCHAR(50) REFERENCES tasks(task_id),
+    farm_id VARCHAR(50) NOT NULL REFERENCES farms(farm_id),
+    required_metrics TEXT NOT NULL, -- JSON string VD: ["soil_moisture", "ph_level"]
+    status VARCHAR(50) DEFAULT 'PENDING', -- PENDING, SUBMITTED
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted_at TIMESTAMP
+);
+
 -- ==============================================================================
 -- DỮ LIỆU MẪU (Mock Data)
 -- ==============================================================================

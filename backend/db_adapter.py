@@ -53,7 +53,7 @@ class DBAdapter:
         if self.mode == "postgres":
             # Convert sqlite ? to postgres %s
             pg_query = query.replace("?", "%s")
-            cur = self.conn.cursor(cursor_factory=DictCursor)
+            cur = self.conn.cursor(cursor_factory=DictCursor) # type: ignore
             if params is None:
                 cur.execute(pg_query)
             else:
@@ -163,6 +163,33 @@ def _ensure_schema(conn):
                 progress_target INTEGER DEFAULT 1,
                 claimed_at TIMESTAMP,
                 PRIMARY KEY (user_id, achievement_id)
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                task_id TEXT PRIMARY KEY,
+                farm_id TEXT NOT NULL,
+                zone_id TEXT,
+                type TEXT NOT NULL,
+                recommended_value REAL,
+                unit TEXT,
+                is_recurring INTEGER DEFAULT 0,
+                cron_schedule TEXT,
+                status TEXT DEFAULT 'SUGGESTED',
+                created_by TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                completed_at TIMESTAMP
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS data_entry_queue (
+                queue_id TEXT PRIMARY KEY,
+                task_id TEXT,
+                farm_id TEXT NOT NULL,
+                required_metrics TEXT NOT NULL,
+                status TEXT DEFAULT 'PENDING',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                submitted_at TIMESTAMP
             )
         """)
         conn.commit()
